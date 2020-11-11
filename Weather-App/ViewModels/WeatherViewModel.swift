@@ -15,7 +15,7 @@ class WeatherViewModel: ObservableObject{
     }
     
     @Published var coordinate: Coordinate?
-    @Published var hourlyWeather: HourlyWeather?
+    @Published var weatherData: WeatherData?
     
     
     
@@ -33,12 +33,11 @@ class WeatherViewModel: ObservableObject{
                         case .success(let returnValue):
 
                             DispatchQueue.main.async {
-                                self?.hourlyWeather = returnValue
+                                self?.weatherData = returnValue
                             }
                         case .failure(let error):
                             print(error)
                         }
-                        
                     }
                 }
             case .failure(let error):

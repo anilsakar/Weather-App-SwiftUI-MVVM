@@ -80,10 +80,10 @@ class WeatherService{
         
     }
     
-    func getHourlyWeatherFor(latitude lat:Double, longitude lon: Double, completed: @escaping (Result<HourlyWeather, ErrorMessage>) -> Void) {
+    func getHourlyWeatherFor(latitude lat:Double, longitude lon: Double, completed: @escaping (Result<WeatherData, ErrorMessage>) -> Void) {
         
        // if let myApiKey = KeychainWrapper.standard.string(forKey: "myApiKey"), myApiKey != "No Key"{
-            urlString = "https://api.openweathermap.org/data/2.5/onecall?lat=\(lat)&lon=\(lon)&exclude=current,minutely,daily,alerts&units=metric&appid=fa842b9d89ae11dc40ce99393374184a"
+            urlString = "https://api.openweathermap.org/data/2.5/onecall?lat=\(lat)&lon=\(lon)&exclude=current,minutely,alerts&units=metric&appid=fa842b9d89ae11dc40ce99393374184a"
        /* }else{
             completed(.failure(.apiKeyError))
             return
@@ -112,19 +112,20 @@ class WeatherService{
             
             do {
                 let deconder = JSONDecoder()
-                var results = try deconder.decode(HourlyWeather.self, from: data)
+                var results = try deconder.decode(WeatherData.self, from: data)
                 
                 if results.hourly.isEmpty {
                     completed(.failure(.coordinateDidNotFound))
                     return
                 }
                 
-                for i in 0...results.hourly.count-1{
+                for i in 0..<8{
                     let date = NSDate(timeIntervalSince1970: TimeInterval(results.hourly[i].date))
                     let newDate = self.convertToUTC(dateToConvert: "\(date.description)")
                     let calendar = Calendar.current
-                    let components = calendar.dateComponents([.hour, .minute], from: newDate)
+                    let components = calendar.dateComponents([.year,.month,.day,.hour, .minute], from: newDate)
                     results.hourly[i].minAndSecond = "\(components.hour!):\(components.minute!)0"
+                    results.daily[i].yearMonthDay = "\(components.day! + i)/\(components.month!)/\(components.year!)"
                 }
                 
                 completed(.success(results))
