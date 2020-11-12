@@ -1,10 +1,11 @@
 # Weather-App-SwiftUI-MVVM
 
-Weather app is a app that it shows entered city or your curretn location weather data. As a back end weather service it uses [OpenWeatherMap](https://openweathermap.org/) API to fetch weather data.
+Weather app is an app that shows entered city or your current location weather data. As a back end weather service it uses [OpenWeatherMap](https://openweathermap.org/) API to fetch weather data.
 
-To secure API key inside app it uses [Key Chain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper) to secure it. When the application starts, it fetches api key from [Firebase Real Time Database](https://firebase.google.com/) and add it to the [Key Chain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper). When app need to use api key to send request to the API it gets the api key from [Key Chain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper) and creates URL.
+To secure API keys inside the app it uses [Keychain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper) to secure it. When the application starts, it fetches api key from [Firebase Real Time Database](https://firebase.google.com/) and adds it to the [Keychain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper). When an app needs to use an api key to send a request to the API it gets the api key from [Keychain Wrapper](https://github.com/jrendel/SwiftKeychainWrapper) and creates the URL.
 
-Because app uses [Firebase Real Time Database](https://firebase.google.com/) if API key changes, app will get notified and API key will change in all devices automatically.
+Because the app uses [Firebase Real Time Database](https://firebase.google.com/) if API key changes, the app will get notified and API key will change in all devices automatically.
+
 
 --Opening App Allow Location Once--  
 ![opening-allow-once](https://user-images.githubusercontent.com/27813389/98970046-8fff8180-2520-11eb-957a-58d045fdf23a.gif)
