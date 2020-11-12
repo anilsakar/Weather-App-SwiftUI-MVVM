@@ -94,12 +94,12 @@ struct WeatherBody: View{
         }.onReceive(locationManager.$locationStatus) { newValue in
             switch newValue{
             case .authorizedWhenInUse:
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     weatherModelView.findSearched(city: nil, latitude: Double(userLatitude), longitude: Double(userLongitude))
                     weatherDataOpacityAnimation()
                 }
             case .authorizedAlways:
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     weatherModelView.findSearched(city: nil, latitude: Double(userLatitude), longitude: Double(userLongitude))
                     weatherDataOpacityAnimation()
                 }
