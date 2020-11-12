@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
+import Firebase
 
 
 enum ErrorMessage: String, Error {
@@ -23,24 +25,26 @@ class WeatherService{
     
     public static let shared: WeatherService = WeatherService()
     private var urlString:String?
+    var ref: DatabaseReference!
     
     func getCoordinate(for search:String?, latitude lat:Double?, longitude lon:Double?, completed: @escaping (Result<Coordinate, ErrorMessage>) -> Void) {
         
-        if let la = lat, let lo = lon{
-            urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(la)&lon=\(lo)&appid=fa842b9d89ae11dc40ce99393374184a"
+        if let myApiKey = KeychainWrapper.standard.string(forKey: "myApiKey"), myApiKey != "No Key"{
+            if let la = lat, let lo = lon{
+                urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(la)&lon=\(lo)&appid=\(myApiKey)"
+            }else{
+                urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(search!)&units=metric&appid=\(myApiKey)"
+            }
         }else{
-            urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(search!)&units=metric&appid=fa842b9d89ae11dc40ce99393374184a"
-        }
-       /* if let myApiKey = KeychainWrapper.standard.string(forKey: "myApiKey"), myApiKey != "No Key"{
-            urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(search)&units=metric&appid=fa842b9d89ae11dc40ce99393374184a"
-       }else{
             completed(.failure(.apiKeyError))
             return
-        }*/
+        }
+        
+        
         guard let url = URL(string: urlString!) else {
             completed(.failure(.urlError))
             return}
-       
+        
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             
             if let _ = error {
@@ -52,9 +56,9 @@ class WeatherService{
                 completed(.failure(.invalidResponse))
                 return
             }
-
+            
             guard let data = data else {
-               
+                
                 completed(.failure(.dataError))
                 return
             }
@@ -82,16 +86,21 @@ class WeatherService{
     
     func getHourlyWeatherFor(latitude lat:Double, longitude lon: Double, completed: @escaping (Result<WeatherData, ErrorMessage>) -> Void) {
         
-       // if let myApiKey = KeychainWrapper.standard.string(forKey: "myApiKey"), myApiKey != "No Key"{
-            urlString = "https://api.openweathermap.org/data/2.5/onecall?lat=\(lat)&lon=\(lon)&exclude=current,minutely,alerts&units=metric&appid=fa842b9d89ae11dc40ce99393374184a"
-       /* }else{
+        if let myApiKey = KeychainWrapper.standard.string(forKey: "myApiKey"), myApiKey != "No Key"{
+            
+            urlString = "https://api.openweathermap.org/data/2.5/onecall?lat=\(lat)&lon=\(lon)&exclude=current,minutely,alerts&units=metric&appid=\(myApiKey)"
+            
+        }else{
             completed(.failure(.apiKeyError))
             return
-        }*/
+        }
+        
+        
+        
         guard let url = URL(string: urlString!) else {
             completed(.failure(.urlError))
             return}
-       
+        
         let task = URLSession.shared.dataTask(with: url) { [self] (data, response, error) in
             
             if let _ = error {
@@ -103,9 +112,9 @@ class WeatherService{
                 completed(.failure(.invalidResponse))
                 return
             }
-
+            
             guard let data = data else {
-               
+                
                 completed(.failure(.dataError))
                 return
             }
@@ -143,12 +152,27 @@ class WeatherService{
     }
     
     func convertToUTC(dateToConvert:String) -> Date {
-         let formatter = DateFormatter()
-         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
-         let convertedDate = formatter.date(from: dateToConvert)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
+        let convertedDate = formatter.date(from: dateToConvert)
         var localTimeZoneIdentifier: String { return TimeZone.current.identifier }
         formatter.timeZone = TimeZone(identifier: localTimeZoneIdentifier)
         return formatter.date(from: "\(formatter.string(from: convertedDate!))")!
-            
+        
+    }
+    
+    func getApiKeyFromFirebase(){
+        
+        let _: Bool = KeychainWrapper.standard.removeObject(forKey: "myApiKey")
+        
+        var tempApiKey:String?
+        
+        ref = Database.database().reference()
+        let myref = ref.child("apiKey")
+        myref.observeSingleEvent(of: .value) { (snapshot) in
+            tempApiKey = snapshot.value as? String
+            let _: Bool = KeychainWrapper.standard.set(tempApiKey ?? "No Key", forKey: "myApiKey")
         }
+        
+    }
 }

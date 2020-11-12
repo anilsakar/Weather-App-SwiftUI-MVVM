@@ -6,9 +6,15 @@
 //
 
 import SwiftUI
+import Firebase
 
 
 struct ContentView: View {
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some View {
         WeatherBody()
     }
@@ -22,12 +28,11 @@ struct ContentView: View {
 }
 
 struct WeatherBody: View{
-
+    
     @ObservedObject var locationManager = LocationManager()
     var weatherModelView: WeatherViewModel = WeatherViewModel()
     
     @State private var weatherDataOpacity:Bool = true
-
     @State private var weatherCity:String = ""
     
     var userLatitude: String {
@@ -85,6 +90,21 @@ struct WeatherBody: View{
                                         }.foregroundColor(.black)
                 )
                 
+            }
+        }.onReceive(locationManager.$locationStatus) { newValue in
+            switch newValue{
+            case .authorizedWhenInUse:
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    weatherModelView.findSearched(city: nil, latitude: Double(userLatitude), longitude: Double(userLongitude))
+                    weatherDataOpacityAnimation()
+                }
+            case .authorizedAlways:
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    weatherModelView.findSearched(city: nil, latitude: Double(userLatitude), longitude: Double(userLongitude))
+                    weatherDataOpacityAnimation()
+                }
+                
+            default: return
             }
         }
     }
@@ -189,8 +209,8 @@ struct WeatherDataView: View {
             .font(.system(size: 25))
     }
 }
-    
-    
+
+
 
 
 struct Test: View {

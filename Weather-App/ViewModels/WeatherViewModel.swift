@@ -11,7 +11,7 @@ import Foundation
 class WeatherViewModel: ObservableObject{
     
     init() {
-        findSearched(city: "Turkey", latitude: nil, longitude: nil)
+        WeatherService.shared.getApiKeyFromFirebase()
     }
     
     @Published var coordinate: Coordinate?
